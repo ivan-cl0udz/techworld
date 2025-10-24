@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Оформлення замовлення | TechWorld</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #1F2937;
+      color: #F9FAFB;
+      font-family: 'Inter', sans-serif;
+    }
+    .accent {
+      color: #38BDF8;
+    }
+    .btn-primary {
+      background-color: #38BDF8;
+      color: #1F2937;
+    }
+    .btn-primary:hover {
+      background-color: #0EA5E9;
+    }
+    .input-field {
+      background-color: #374151;
+      border: 1px solid #4B5563;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="bg-gray-900 shadow-sm py-3 px-6 flex justify-between items-center border-b border-gray-700">
+    <a href="{% url 'shop:start' %}" class="font-bold text-2xl accent">TechWorld</a>
+    <nav
+
+    </nav>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-5xl mx-auto py-12 px-6">
+    <h1 class="text-3xl font-bold mb-8">Оформлення замовлення</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+      
+      <!-- Shipping Form -->
+      <div>
+        <h2 class="text-xl font-semibold mb-4">Інформація для доставки</h2>
+        <form method="post" novalidate class="space-y-4">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          {% for field in form %}
+            <div>
+              <label for="{{ field.id_for_label }}" class="block mb-1 text-sm text-black-300">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ field.errors|join:", " }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <button type="submit" class="btn-primary px-6 py-2 rounded-lg font-semibold mt-4">Підтвердити замовлення</button>
+        </form>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="bg-gray-800 rounded-xl shadow p-6 border border-gray-700">
+        <h2 class="text-xl font-semibold mb-4">Ваше замовлення</h2>
+        <ul class="space-y-4 text-sm text-gray-300">
+          {% for item in cart_items %}
+            <li class="flex justify-between border-b border-gray-600 pb-2">
+              <span>{{ item.products.name }} x {{ item.quantity }}</span>
+              <span>{{ item.products.price|floatformat:2 }} ₴</span>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <div class="mt-4 pt-4 border-t border-gray-600 text-white text-lg font-bold flex justify-between">
+          <span>Загалом:</span>
+          <span>{{ total|floatformat:2 }} ₴</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-10 text-center py-4 text-sm text-gray-500 border-t border-gray-700">
+    © {{ now|date:"Y" }} TechWorld. Всі права захищені.
+  </footer>
+
+</body>
+</html>

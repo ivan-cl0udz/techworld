@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>TechWorld | Результати пошуку</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #1F2937; /* dark gray */
+      color: #F9FAFB; /* light text */
+      font-family: 'Inter', sans-serif;
+    }
+    .accent {
+      color: #38BDF8; /* cyan blue */
+    }
+    .btn-primary {
+      background-color: #38BDF8;
+      color: #1F2937;
+    }
+    .btn-primary:hover {
+      background-color: #0EA5E9;
+    }
+    .btn-secondary {
+      background-color: #F59E0B;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #D97706;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="bg-gray-900 shadow-sm py-3 px-6 flex justify-between items-center border-b border-gray-700">
+    <span class="font-bold text-2xl accent">TechWorld</span>
+    <div class="flex items-center space-x-4">
+      <form action="{% url 'shop:search_list' %}" method="get" class="flex items-center space-x-4">
+        <input type="text" name="q" placeholder="Я шукаю..." class="border border-gray-600 rounded-lg px-4 py-1 w-72 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" value="{{ query|default:'' }}" />
+        <button type="submit" class="btn-primary px-4 py-1 rounded-lg">Знайти</button>
+      </form>
+
+    </div>
+  </header>
+
+  <!-- Layout -->
+  <div class="flex mt-6">
+    <!-- Sidebar -->
+
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+      <h1 class="text-3xl font-bold accent mb-6">Результати пошуку</h1>
+
+      {% if query %}
+        <p class="mb-4 text-gray-400">Результати для: <span class="text-cyan-400 font-medium">"{{ query }}"</span></p>
+      {% endif %}
+
+      {% if filtering %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+          {% for product in filtering %}
+            <div class="bg-gray-800 rounded-xl shadow hover:shadow-lg transition duration-200 border border-gray-700">
+              {% if product.image %}
+                <a href="#">
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="rounded-t-xl h-40 w-full object-cover" />
+                </a>
+              {% else %}
+                <div class="h-40 bg-gray-700 flex items-center justify-center text-gray-400 rounded-t-xl">
+                  Без зображення
+                </div>
+              {% endif %}
+              <div class="p-4">
+                <h3 class="text-sm font-semibold h-12 overflow-hidden">{{ product.name }}</h3>
+                {% if product.category %}
+                  <p class="text-xs text-gray-400 mb-2">{{ product.category.name }}</p>
+                {% endif %}
+                <p class="text-lg font-bold text-cyan-400">{{ product.price }} ₴</p>
+                <button class="mt-3 w-full btn-primary py-1 rounded-lg hover:bg-cyan-600 transition">
+                  Купити
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-gray-400 mt-6">Нічого не знайдено за запитом <span class="text-cyan-400">"{{ query }}"</span>.</p>
+      {% endif %}
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-10 text-center py-4 text-sm text-gray-500 border-t border-gray-700">
+    © {{ now|date:"Y" }} TechWorld. Всі права захищені.
+  </footer>
+
+</body>
+</html>

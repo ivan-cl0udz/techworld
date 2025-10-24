@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Кошик | TechWorld</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #1F2937;
+      color: #F9FAFB;
+      font-family: 'Inter', sans-serif;
+    }
+    .accent {
+      color: #38BDF8;
+    }
+    .btn-primary {
+      background-color: #38BDF8;
+      color: #1F2937;
+    }
+    .btn-primary:hover {
+      background-color: #0EA5E9;
+    }
+    .btn-danger {
+      background-color: #EF4444;
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #DC2626;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Header -->
+<header class="bg-gray-900 shadow-sm py-3 px-6 flex justify-between items-center border-b border-gray-700">
+  <a href="{% url 'shop:start' %}" class="font-bold text-2xl accent">TechWorld</a>
+  <nav>
+
+  </nav>
+</header>
+
+<!-- Main -->
+<main class="flex-1 p-8 max-w-7xl mx-auto">
+  <h1 class="text-3xl font-bold mb-8">Ваш кошик</h1>
+
+  {% if cart_items %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- Product list -->
+    <div class="lg:col-span-2 space-y-6">
+      {% for item in cart_items %}
+      <div class="flex justify-between items-center bg-gray-800 p-5 rounded-xl shadow border border-gray-700">
+        <div class="flex items-center space-x-4">
+          {% if item.products.image %}
+            <img src="{{ item.products.image.url }}" alt="{{ item.products.name }}" class="w-20 h-20 object-cover rounded">
+          {% else %}
+            <div class="w-20 h-20 bg-gray-700 text-gray-400 flex items-center justify-center rounded">Фото</div>
+          {% endif %}
+
+          <div>
+            <h2 class="text-lg font-semibold">{{ item.products.name }}</h2>
+            <p class="text-sm text-gray-400">Ціна за одиницю: {{ item.products.price }} ₴</p>
+
+            <!-- Quantity Controls -->
+            <div class="flex items-center mt-2 space-x-2">
+              <form action="{% url 'cart:decrement' item.products.name|urlencode %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600">-</button>
+              </form>
+
+              <span class="px-3">{{ item.quantity }}</span>
+
+              <form action="{% url 'cart:increment' item.products.name|urlencode %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600">+</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price and Remove -->
+        <div class="text-right">
+          <p class="text-cyan-400 font-bold text-lg">{{ item.products.price|floatformat:2 }} ₴</p>
+
+          <form action="{% url 'cart:remove_from_cart' item.products.name|urlencode %}" method="post" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger px-4 py-1 rounded-lg text-sm">Видалити</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Summary -->
+    <div class="bg-gray-800 p-6 rounded-xl shadow border border-gray-700">
+      <h2 class="text-xl font-semibold mb-4">Підсумок</h2>
+      <div class="space-y-2 text-sm text-gray-300">
+        <div class="flex justify-between">
+          <span>Сума товарів:</span>
+          <span>{{ total|floatformat:2 }} ₴</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Податок (0%):</span>
+          <span>0.00 ₴</span>
+        </div>
+        <div class="flex justify-between font-bold text-white text-base mt-2 pt-2 border-t border-gray-600">
+          <span>Загалом:</span>
+          <span>{{ total|floatformat:2 }} ₴</span>
+        </div>
+      </div>
+
+      <div class="mt-6 space-y-3">
+        <!-- ✅ Checkout button -->
+        <a href="{% url 'orders:checkout' %}" class="btn-primary w-full py-2 rounded-lg font-semibold block text-center">
+          Оформити замовлення
+        </a>
+
+        <!-- Continue Shopping -->
+        <a href="{% url 'shop:start' %}" class="w-full py-2 text-center rounded-lg border border-gray-500 text-gray-300 hover:bg-gray-700 block">
+          Продовжити покупки
+        </a>
+      </div>
+    </div>
+
+  </div>
+  {% else %}
+    <p class="text-gray-400 text-center mt-10">Ваш кошик порожній.</p>
+  {% endif %}
+</main>
+
+<!-- Footer -->
+<footer class="text-center py-4 text-sm text-gray-500 border-t border-gray-700 mt-10">
+  © {{ now|date:"Y" }} TechWorld. Всі права захищені.
+</footer>
+
+</body>
+</html>
