@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ product.name }} | TechWorld</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #1F2937;
+      color: #F9FAFB;
+      font-family: 'Inter', sans-serif;
+    }
+    .accent { color: #38BDF8; }
+    .btn-primary { background-color: #38BDF8; color: #1F2937; }
+    .btn-primary:hover { background-color: #0EA5E9; }
+
+    /* Popup styling */
+    #cart-popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #111827;
+      color: #F9FAFB;
+      border: 1px solid #38BDF8;
+      padding: 16px 24px;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    #cart-popup.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    #cart-popup a {
+      color: #38BDF8;
+      text-decoration: underline;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-gray-900 shadow-sm py-3 px-6 flex justify-between items-center border-b border-gray-700">
+    <a href="{% url 'shop:start' %}" class="font-bold text-2xl accent">TechWorld</a>
+
+    <div class="flex items-center space-x-4">
+      <!-- Search -->
+      <form action="{% url 'shop:search_list' %}" method="get" class="flex items-center space-x-4">
+        <input type="text" name="q" placeholder="Я шукаю..."
+               class="border border-gray-600 rounded-lg px-4 py-1 w-72 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+        <button type="submit" class="btn-primary px-4 py-1 rounded-lg">Знайти</button>
+      </form>
+
+      <!-- Cart Icon -->
+      <a href="{% url 'cart:cart' %}" class="p-2 rounded-full hover:bg-gray-700 transition relative group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7h11l-1.5-7M10 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+        </svg>
+      </a>
+
+      <!-- Auth -->
+      {% if user.is_authenticated %}
+        <a href="{% url 'shop:profile' %}" class="text-cyan-400 hover:text-cyan-200 font-medium">Профіль</a>
+        <a href="{% url 'shop:logout' %}" class="text-gray-400 hover:text-white font-medium">Вийти</a>
+      {% else %}
+        <a href="{% url 'shop:login' %}" class="text-cyan-400 hover:text-cyan-200 font-medium">Увійти</a>
+        <a href="{% url 'shop:register' %}" class="text-gray-400 hover:text-white font-medium">Реєстрація</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="flex flex-1 mt-6">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-800 shadow-md p-5 border-r border-gray-700 hidden lg:block">
+      {% if user.is_authenticated %}
+      <p class="text-center mt-4 mb-6">
+        <a href="{% url 'shop:order_history' %}" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md inline-block">
+          Історія замовлень
+        </a>
+      </p>
+      {% endif %}
+
+      <h2 class="font-bold mb-4 text-lg accent">Категорії</h2>
+      <ul class="space-y-2">
+        {% for category in categories %}
+          <li>
+            <a href="{% url 'shop:category_view' slug=category.slug %}"
+               class="block py-2 px-3 rounded hover:bg-cyan-700 hover:text-white transition">
+              {{ category.name }}
+            </a>
+          </li>
+        {% empty %}
+          <li class="text-gray-500">Немає категорій</li>
+        {% endfor %}
+      </ul>
+    </aside>
+
+    <!-- Product Content -->
+    <main class="flex-1 p-8 max-w-5xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 bg-gray-800 rounded-xl shadow-lg border border-gray-700 p-6">
+
+        <!-- Product Image -->
+        <div>
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="rounded-lg object-cover w-full h-96">
+          {% else %}
+            <div class="w-full h-96 bg-gray-700 flex items-center justify-center text-gray-400 rounded-lg">
+              Без зображення
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Product Info -->
+        <div>
+          <h1 class="text-3xl font-bold mb-4">{{ product.name }}</h1>
+
+          {% if product.category %}
+            <p class="text-sm text-gray-400 mb-2">Категорія: {{ product.category.name }}</p>
+          {% endif %}
+
+          <p class="text-xl text-cyan-400 font-semibold mb-6">{{ product.price }} ₴</p>
+
+          {% if product.description %}
+            <div class="mb-6">
+              <h2 class="text-lg font-semibold mb-2">Опис</h2>
+              <p class="text-gray-300">{{ product.description }}</p>
+            </div>
+          {% endif %}
+
+          <!-- Add to Cart Button (AJAX) -->
+          <button
+            data-url="{% url 'cart:add_to_cart' name=product.name %}"
+            class="block w-full text-center btn-primary px-6 py-3 rounded-lg font-semibold text-lg"
+            id="add-to-cart-btn">
+            Додати в кошик
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center py-4 text-sm text-gray-500 border-t border-gray-700 mt-10">
+    © {{ now|date:"Y" }} TechWorld. Всі права захищені.
+  </footer>
+
+  <!-- Popup -->
+  <div id="cart-popup">
+    ✅ Товар додано до кошика!
+    <a href="{% url 'cart:cart' %}">Перейти до кошика</a>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const addBtn = document.getElementById('add-to-cart-btn');
+  if (!addBtn) {
+    console.error("❌ Add-to-cart button not found!");
+    return;
+  }
+
+  addBtn.addEventListener('click', function () {
+    const url = this.dataset.url;
+    console.log("🛒 Sending request to:", url); // Debug
+
+    fetch(url, {
+      method: 'GET',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Network error');
+      return response.json();
+    })
+    .then(data => {
+      console.log("✅ Added:", data);
+
+      const popup = document.getElementById('cart-popup');
+      popup.classList.add('show');
+      popup.innerHTML = `✅ ${data.message} <a href="/cart/cart/">Перейти до кошика</a>`;
+      setTimeout(() => popup.classList.remove('show'), 3000);
+    })
+    .catch(error => console.error('Помилка:', error));
+  });
+});
+</script>
+
+
+</body>
+</html>

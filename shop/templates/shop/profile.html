@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Мій профіль | TechWorld</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #1F2937;
+      color: #F9FAFB;
+      font-family: 'Inter', sans-serif;
+    }
+    .accent { color: #38BDF8; }
+    .btn-primary {
+      background-color: #38BDF8;
+      color: #1F2937;
+    }
+    .btn-primary:hover {
+      background-color: #0EA5E9;
+    }
+    .btn-secondary {
+      background-color: #F59E0B;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #D97706;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="bg-gray-900 py-4 px-6 border-b border-gray-700 flex justify-between items-center">
+    <a href="{% url 'shop:start' %}" class="text-2xl font-bold accent">TechWorld</a>
+
+    {% if user.is_authenticated %}
+      <a href="{% url 'shop:logout' %}" class="btn-secondary px-4 py-1 rounded-lg text-sm">Вийти</a>
+    {% else %}
+      <div class="space-x-3">
+        <a href="{% url 'shop:login' %}" class="btn-primary px-4 py-1 rounded-lg text-sm">Увійти</a>
+        <a href="{% url 'shop:register' %}" class="btn-secondary px-4 py-1 rounded-lg text-sm">Реєстрація</a>
+      </div>
+    {% endif %}
+  </header>
+
+  <!-- Profile Section -->
+  <main class="max-w-3xl mx-auto mt-10 bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700">
+    {% if user.is_authenticated %}
+      <h1 class="text-3xl font-bold mb-6 accent">Мій профіль</h1>
+
+      <div class="space-y-4">
+        <p><span class="font-semibold text-gray-300">Ім'я користувача:</span> {{ user.username }}</p>
+        <p><span class="font-semibold text-gray-300">Електронна пошта:</span> {{ user.email }}</p>
+
+        {% if user.first_name or user.last_name %}
+          <p><span class="font-semibold text-gray-300">Повне ім’я:</span> {{ user.first_name }} {{ user.last_name }}</p>
+        {% endif %}
+
+        <div class="mt-6">
+          <a href="{% url 'shop:order_history' %}" class="btn-primary px-5 py-2 rounded-lg text-lg hover:bg-cyan-600 transition">
+            Переглянути історію замовлень
+          </a>
+        </div>
+      </div>
+
+    {% else %}
+      <!-- Not logged in -->
+      <div class="text-center py-10">
+        <h1 class="text-3xl font-bold accent mb-4">Ви не авторизовані</h1>
+        <p class="text-gray-400 mb-6">Щоб переглянути профіль, будь ласка, увійдіть або створіть акаунт.</p>
+
+        <div class="space-x-4">
+          <a href="{% url 'shop:login' %}" class="btn-primary px-5 py-2 rounded-lg text-lg hover:bg-cyan-600 transition">
+            Увійти
+          </a>
+          <a href="{% url 'shop:register' %}" class="btn-secondary px-5 py-2 rounded-lg text-lg hover:bg-yellow-500 transition">
+            Реєстрація
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-10 text-center py-4 text-sm text-gray-500 border-t border-gray-700">
+    © {{ now|date:"Y" }} TechWorld. Всі права захищені.
+  </footer>
+
+</body>
+</html>
